@@ -1,62 +1,55 @@
-import re #coding: utf-8
-from datetime import datetime, date
+from imports import *
 
-
-class Empleados():
-    
+class Empleados(Base):
     """
-    Representa la entidad Empleado en el sistema de viajes multimodales.
-    Valida atributos como DNI, email y fecha de nacimiento.
+    Representa la entidad Empleados en el sistema de viajes multimodales.
+    Incluye validación de DNI, email y fecha de nacimiento.
     """
+    __tablename__ = 'empleados'
 
-    #Definición de los atributos de instancia
-    def __init__(self, id_empleados: int, nombre: str, apellido: str, dni: str, fecha_nacimiento: str, email: str):
-        self.id_empleados = id_empleados
-        self.nombre = nombre.strip().title()
-        self.apellido = apellido.strip().title()
-        self.dni = self.validar_dni(dni) 
-        self.fecha_nacimiento = self.validar_fecha_nacimiento(fecha_nacimiento) 
-        self.email = self.validar_email(email) 
+    id_empleados = Column(Integer, primary_key=True, autoincrement=True)
+    nombre = Column(String(50), nullable=False)
+    apellido = Column(String(50), nullable=False)
+    dni = Column(String(8), nullable=False, unique=True)
+    fecha_nacimiento = Column(Date, nullable=False)
+    email = Column(String(100), nullable=False, unique=True)
 
+    #Definición de la relación
+    empresas_relacion = relationship("Empresas_empleados", back_populates="empleados")
 
-    #Definición de los métodos de la clase
-    #Mediante los siguientes métodos se procede a validar los datos de entrada de los atributos de instancia, 
-    #Teniendo en cuenta el dominio de los datos declarados en el diagrama E-R de la base de datos. 
-    
     def __repr__(self) -> str:
-        return f"Empleados(Id del empleado: {self.id_empleados}, Nombre: {self.nombre}, Apellido: {self.apellido}, DNI: {self.dni}, Fecha de Nacimiento: {self.fecha_nacimiento}, Email: {self.email})"
-    
+        return (f"Empleados(Id del empleado: {self.id_empleados}, "
+                f"Nombre: {self.nombre}, Apellido: {self.apellido}, "
+                f"DNI: {self.dni}, Fecha de Nacimiento: {self.fecha_nacimiento}, "
+                f"Email: {self.email})")
 
-    def validar_dni(self, dni:str) -> str:
-        """Valida el formato del DNI Argentino."""
+    # 🔹 Validaciones con @validates
+    @validates('dni')
+    def validar_dni(self, key, dni: str) -> str:
+        """Valida el formato del DNI Argentino (8 dígitos)."""
         if not re.match(r'^\d{8}$', dni):
             raise ValueError("El DNI debe tener 8 dígitos. Intenta nuevamente.")
-        else:
-            return dni
-                
+        return dni
 
-    def validar_email(self, email: str) -> str:
+    @validates('email')
+    def validar_email(self, key, email: str) -> str:
         """Valida el formato del email."""
         if not re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', email):
             raise ValueError("El email no tiene un formato válido. Intenta nuevamente.")
-        else:
-            return email
-         
-    
-    def validar_fecha_nacimiento(self, fecha_nacimiento: str) -> date:
-        """Valida el formato de la fecha de nacimiento: YYYY/MM/DD"""
+        return email
+
+    @validates('fecha_nacimiento')
+    def validar_fecha_nacimiento(self, key, fecha_nacimiento: str | date) -> date:
+        """
+        Valida la fecha de nacimiento. 
+        Acepta string en formato YYYY-MM-DD o directamente un objeto date.
+        """
+        if isinstance(fecha_nacimiento, date):
+            return fecha_nacimiento
         try:
-            return datetime.strptime(fecha_nacimiento, '%Y-%m-%d').date() #convierte un string a un objeto date
+            return datetime.strptime(fecha_nacimiento, '%Y-%m-%d').date()
         except ValueError:
-            raise ValueError("La fecha de nacimiento no tiene un formato válido. Intenta nuevamente.")
-
-
-
-
-
-
-
-
+            raise ValueError("La fecha de nacimiento no tiene un formato válido (usa YYYY-MM-DD).")
 
 
 
