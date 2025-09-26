@@ -19,8 +19,8 @@ class Viajes(Base):
     cancelaciones_relacion = relationship('Cancelaciones', back_populates='viajes_relacion')
     #Relación con la tabla viajes_costos
     viajes_costos_relacion = relationship('Viajes_costos', back_populates='viajes_relacion')
-    #Relación con la tabla empresas_viajes
-    empresas_viajes_relacion = relationship('Empresas_viajes', back_populates='viajes_relacion')
+    #Relación N:M com la tabla Empresas utilizando la relación intermedia Empresas_viajes
+    empresas = relationship('Empresas', secondary='Empresas_viajes', back_populates='viajes')
     
 
 
