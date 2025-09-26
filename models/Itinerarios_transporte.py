@@ -7,10 +7,7 @@ class Itinerarios_transporte(Base):
     id_itinerarios = Column(Integer, ForeignKey(Itinerarios.id_itinerarios), primary_key=True, nullable=False)
     id_medios_transporte = Column(Integer, ForeignKey(Medios_Transporte.id_medios_transporte), primary_key=True, nullable=False)
     
-    #Relaciones hacia las tablas principales.
-    itinerarios_relacion = relationship('Itinerarios', back_populates='itinerarios_transporte_relacion')
-    medios_transporte_relacion = relationship('Medios_transporte', back_populates='itinerarios_transporte_relacion')
-
+    
 
 
 
