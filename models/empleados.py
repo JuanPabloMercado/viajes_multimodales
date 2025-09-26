@@ -14,8 +14,8 @@ class Empleados(Base):
     fecha_nacimiento = Column(Date, nullable=False)
     email = Column(String(100), nullable=False, unique=True)
 
-    #Definición de la relación
-    empresas_relacion = relationship("Empresas_empleados", back_populates="empleados")
+    # Relación hacia Empresas_empleados
+    empresas_relacion = relationship('Empresas_empleados', back_populates='empleado')
 
     def __repr__(self) -> str:
         return (f"Empleados(Id del empleado: {self.id_empleados}, "
@@ -23,10 +23,10 @@ class Empleados(Base):
                 f"DNI: {self.dni}, Fecha de Nacimiento: {self.fecha_nacimiento}, "
                 f"Email: {self.email})")
 
-    # 🔹 Validaciones con @validates
+    # Validaciones
     @validates('dni')
     def validar_dni(self, key, dni: str) -> str:
-        """Valida el formato del DNI Argentino (8 dígitos)."""
+        """Valida que el DNI tenga exactamente 8 dígitos numéricos."""
         if not re.match(r'^\d{8}$', dni):
             raise ValueError("El DNI debe tener 8 dígitos. Intenta nuevamente.")
         return dni
@@ -40,10 +40,7 @@ class Empleados(Base):
 
     @validates('fecha_nacimiento')
     def validar_fecha_nacimiento(self, key, fecha_nacimiento: str | date) -> date:
-        """
-        Valida la fecha de nacimiento. 
-        Acepta string en formato YYYY-MM-DD o directamente un objeto date.
-        """
+        """Valida que la fecha de nacimiento tenga formato YYYY-MM-DD o sea un objeto date."""
         if isinstance(fecha_nacimiento, date):
             return fecha_nacimiento
         try:
@@ -51,6 +48,10 @@ class Empleados(Base):
         except ValueError:
             raise ValueError("La fecha de nacimiento no tiene un formato válido (usa YYYY-MM-DD).")
 
+    # Propiedad auxiliar: empresas directas del empleado
+    @property
+    def empresas(self):
+        return [rel.empresa for rel in self.empresas_relacion]
 
 
 
