@@ -1,9 +1,9 @@
 from imports import *
 
-class Itinerario(Base):
+class Itinerarios(Base):
     __tablename__ = 'Itinerarios'
 
-    id_itinerario = Column(Integer, primary_key=True, autoincrement=True)
+    id_itinerarios = Column(Integer, primary_key=True, autoincrement=True)
     fecha_inicio = Column(Date, nullable=False)
     fecha_fin = Column(Date, nullable=False)
     detalle = Column(String(200), nullable=True)
