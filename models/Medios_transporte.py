@@ -10,9 +10,12 @@ class Medios_transporte(Base):
     id_tipo_transporte = Column(Integer, ForeignKey('Tipo_transporte.id_tipo_transporte'), nullable=False)
 
 
-    #Relaciones hacia las tablas principales.
+    #Relaciones hacia la tabla Costos_transporte
     costos_transporte_relacion = relationship('Costos_transporte', back_populates='medios_transporte_relacion')
-    tipo_transporte_relacion = relationship('Tipo_transporte', back_populates='medios_transporte_relacion')
+
+    #Relación con la tabla Itinerarios, a través de la tabla intermedia Itinerarios_transporte
+    itinerarios = relationship('Itinerarios', secondary='Itinerarios_transporte', back_populates='medios_transporte')
+    
 
 
 
