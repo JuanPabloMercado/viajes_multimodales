@@ -9,7 +9,7 @@ class Itinerarios(Base):
     detalle = Column(String(200), nullable=True)
     
     #Definción de las claves foráneas
-    id_viajes = Column(Integer, ForeignKey('Viajes.id_viaje'), nullable=False)
+    id_viajes = Column(Integer, ForeignKey('Viajes.id_viajes'), nullable=False)
 
     #Relación con Medios_transporte a través de la tabla intermedia Itinerarios_transporte
     medios_transporte = relationship('Medios_transporte', secondary='Itinerarios_transporte', back_populates='itinerarios')
