@@ -16,6 +16,9 @@ class Medios_transporte(Base):
     #Relación con la tabla Itinerarios, a través de la tabla intermedia Itinerarios_transporte
     itinerarios = relationship('Itinerarios', secondary='Itinerarios_transporte', back_populates='medios_transporte')
     
+    #Relación hacia la tabla Tipo_transporte
+    tipo_transporte_relacion = relationship('Tipo_transporte', back_populates='medios_transporte_relacion')
+
 
 
 
