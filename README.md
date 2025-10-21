@@ -5,12 +5,11 @@ Este proyecto implementa un sistema de **gestión de viajes corporativos multimo
 El objetivo principal es mostrar la estructura de la base de datos, las relaciones entre entidades, los flujos de trabajo de creación y actualización de registros, y el registro de auditorías mediante triggers.
 
 ## Arquitectura del Proyecto
-- **Python 3.x** como lenguaje principal.
+- **Python 3.12.4 como lenguaje principal.
 - **SQLAlchemy ORM** para modelar y manipular la base de datos.
 - **SQLite** como motor de base de datos (puede adaptarse a PostgreSQL, MySQL u otros).
 - **Estructura modular**:
   - `models/` → Contiene todas las clases y la conexión a la base de datos.
-  - `consultas_practica/` → Contiene scripts de prueba y consultas de ejemplo.
   - `create_db.py` → Script para crear la base de datos y todas las tablas.
   - `triggers.sql` → Contiene todos los triggers de auditoría y validaciones.
 
