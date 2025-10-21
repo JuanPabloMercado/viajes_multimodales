@@ -1,4 +1,6 @@
-from imports import *
+from .imports import * 
+from .base import Base 
+
 
 class Cancelaciones(Base):
     __tablename__ = 'Cancelaciones'
@@ -8,8 +10,8 @@ class Cancelaciones(Base):
     fecha_cancelacion = Column(DateTime, nullable=False)
     
     #Claves foráneas
-    id_viajes = Column(Integer, ForeignKey('viajes.id_viajes'), nullable=False)
-    id_tipo_cancelacion = Column(Integer, ForeignKey('Tipo_Cancelacion.id_tipo_cancelacion'), nullable=False)
+    id_viajes = Column(Integer, ForeignKey('Viajes.id_viajes'), nullable=False)
+    id_tipo_cancelacion = Column(Integer, ForeignKey('Tipo_cancelacion.id_tipo_cancelacion'), nullable=False)
     
     #Relaciones hacia las tablas principales.
     viajes_relacion = relationship('Viajes', back_populates='cancelaciones_relacion')

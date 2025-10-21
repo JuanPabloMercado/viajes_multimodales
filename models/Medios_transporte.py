@@ -1,7 +1,9 @@
-from imports import *
+from .imports import * 
+from .base import Base 
+
 
 class Medios_transporte(Base):
-    __tablename__ = 'Medios_Transporte'
+    __tablename__ = 'Medios_transporte'
     
     id_medios_transporte = Column(Integer, primary_key=True, autoincrement=True)
     

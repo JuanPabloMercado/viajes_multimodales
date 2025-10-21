@@ -1,4 +1,6 @@
-from imports import *
+from .imports import * 
+from .base import Base 
+
 
 class Tablas_sistema(Base):
     __tablename__ = 'Tablas_sistema'
@@ -7,7 +9,7 @@ class Tablas_sistema(Base):
     nombre_tabla = Column(String(100), nullable=False, unique=True)
     
     #Relación con Historial_cambios
-    historial_cambios = relationship('Historial_cambios', backref='tablas_sistema_relacion')
+    historial_cambios = relationship('Historial_cambios', back_populates='tablas_sistema_relacion')
 
 
 

@@ -1,7 +1,8 @@
-from imports import *
+from .imports import * 
+from .base import Base 
 
 class Tipo_cancelacion(Base):
-    __tablename__ = 'Tipo_Cancelacion'
+    __tablename__ = 'Tipo_cancelacion'
     
     id_tipo_cancelacion = Column(Integer, primary_key = True, autoincrement=True)
     nombre_tipo = Column(

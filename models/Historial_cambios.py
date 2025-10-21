@@ -1,5 +1,6 @@
+from .imports import * 
+from .base import Base 
 
-from imports import *
 
 class Historial_cambios(Base):
     __tablename__ = 'Historial_cambios'
@@ -15,8 +16,8 @@ class Historial_cambios(Base):
 
 
     #Definción de las relaciones con las tablas Tablas_sistema y Tipo_cambio
-    tablas_sistema_relacion = relationship('Tablas_sistema', backref='historial_cambios')
-    tipo_cambio_relacion = relationship('Tipo_cambio', backref='historial_cambios')
+    tablas_sistema_relacion = relationship('Tablas_sistema', back_populates='historial_cambios')
+    tipo_cambio_relacion = relationship('Tipo_cambio', back_populates='historial_cambios')
 
     #Relación con Historial_detalle
-    historial_detalles = relationship('Historial_detalle', backref='historial_cambios')
+    historial_detalles = relationship('Historial_detalle', back_populates='historial_cambios')

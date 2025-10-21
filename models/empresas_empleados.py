@@ -1,15 +1,20 @@
-from imports import *
+from .imports import * 
+from .base import Base 
+from models.conexion_db import SessionLocal
+from models import *
+session = SessionLocal()
+
 
 class Empresas_empleados(Base):
     """
     Clase intermedia que representa la relación N:M entre Empresas y Empleados.
     Incluye atributos adicionales: fecha_ingreso y puesto.
     """
-    __tablename__ = 'empresas_empleados'
+    __tablename__ = 'Empresas_empleados'
 
     # Claves primarias compuestas
-    id_empresas = Column(Integer, ForeignKey('empresas.id_empresas'), primary_key=True, nullable=False)
-    id_empleados = Column(Integer, ForeignKey('empleados.id_empleados'), primary_key=True, nullable=False)
+    id_empresas = Column(Integer, ForeignKey('Empresas.id_empresas'), primary_key=True, nullable=False)
+    id_empleados = Column(Integer, ForeignKey('Empleados.id_empleados'), primary_key=True, nullable=False)
 
     # Atributos adicionales
     fecha_ingreso = Column(Date, nullable=False)
@@ -39,6 +44,33 @@ class Empresas_empleados(Base):
         if len(value) > 100:
             raise ValueError("El puesto de trabajo no puede exceder los 100 caracteres.")
         return value
+    
+    @classmethod
+    def empresa_empleado_relacion(cls, id_empresa: int, id_empleado: int, fecha_ingreso: Date, puesto: str):
+        with SessionLocal() as session:
+            empresa = session.query(Empresas).filter_by(id_empresas=id_empresa).first()
+            empleado = session.query(Empleados).filter_by(id_empleados=id_empleado).first()
+        
+        if not empresa:
+            print(f'La empresa con id {id_empresa} no se encuentra cargada en la base de datos.')
+        elif not empleado:
+            print(f'El empleado con id {id_empleado} no se encuentra cargado en la base de datos.')
+        else: 
+            print('Error inesperado.')
+        
+        relacion = cls(
+            id_empresas = id_empresa,
+            id_empleados = id_empleado, 
+            fecha_ingreso=fecha_ingreso,
+            puesto=puesto
+        )    
+        
+        session.add(relacion)
+        session.commit()
+        session.refresh(relacion)
+        print(f'Relación creada correctamente con Id Empleado: {id_empleado} y Id Empresa: {id_empresa}.')
+        return relacion
+        
 
 
 

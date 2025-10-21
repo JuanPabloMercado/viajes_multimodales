@@ -1,4 +1,6 @@
-from imports import *
+from .imports import * 
+from .base import Base 
+
 
 class Historial_detalle(Base):
     __tablename__ = 'Historial_detalle'
@@ -12,7 +14,7 @@ class Historial_detalle(Base):
     id_historial_cambios = Column(Integer, ForeignKey('Historial_cambios.id_historial_cambios'), nullable=False)
     
     #Relación con Historial_cambios
-    historial_cambios = relationship('Historial_cambios', backref='historial_detalles')
+    historial_cambios = relationship('Historial_cambios', back_populates='historial_detalles')
 
 
 

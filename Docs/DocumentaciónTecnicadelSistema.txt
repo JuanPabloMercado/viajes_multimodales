@@ -1,0 +1,169 @@
+# Documentación Técnica del Sistema de Gestión de Viajes Multimodales
+
+## 1. Introducción al proyecto
+
+El presente proyecto implementa un sistema integral de gestión de viajes corporativos multimodales. Su objetivo es ofrecer una solución completa para planificar, administrar y auditar itinerarios, destinos, medios de transporte y costos asociados, garantizando integridad, trazabilidad y seguridad de los datos.
+
+La elección de SQLite responde a la necesidad de contar con un motor ligero, de fácil despliegue, que soporte transacciones completas, relaciones complejas y triggers, permitiendo un entorno robusto sin depender de configuraciones externas pesadas. La solución es aplicable a entornos productivos, donde la fiabilidad de la información y el control sobre las operaciones es crítico.
+
+Este sistema está diseñado para gestionar información jerárquica y modular, donde cada entidad (empleados, empresas, viajes, itinerarios, destinos y transportes) se relaciona mediante claves primarias y foráneas, garantizando que los flujos de datos sean consistentes y auditables en tiempo real.
+
+## 2. Objetivos
+
+El objetivo general es desarrollar un sistema robusto, seguro y escalable para la gestión integral de viajes corporativos, que permita registrar todas las operaciones sobre los datos, asegurar trazabilidad y mantener coherencia en transacciones complejas.
+
+Los objetivos específicos incluyen:
+
+* Implementar un modelo de datos completo con relaciones 1:N y N:M, control de integridad y validaciones de campos críticos.
+* Diseñar y aplicar triggers de auditoría para registrar inserciones, actualizaciones y eliminaciones de manera automática.
+* Construir una arquitectura modular en Python con clases que representen cada entidad del sistema, integrando métodos de CRUD y operaciones complejas.
+* Asegurar trazabilidad total mediante tablas de auditoría que registren cambios a nivel de registro y campo.
+* Garantizar la gestión de transacciones completas para operaciones multientidad, incluyendo creación de viajes con itinerarios, destinos y transportes.
+* Incorporar funciones de cálculo de costos totales, por destino y transporte, integradas en la lógica del negocio.
+* Definir reglas de validación estrictas sobre fechas, formatos y jerarquías de datos para asegurar coherencia.
+
+## 3. Arquitectura del sistema
+
+El sistema se organiza en tres capas principales:
+
+1. Capa de presentación:
+   Aunque no se implementa una interfaz gráfica final, la capa de presentación utiliza CLI y prints de consola para pruebas y monitoreo de operaciones. Permite observar el flujo de datos y la ejecución de métodos transaccionales en tiempo real.
+
+2. Capa de negocio:
+   Contiene las clases en Python que representan las entidades del sistema: Viajes, Itinerarios, Destinos Generales, Destinos Específicos, Medios_Transporte, Costos_Transporte, Empleados y Empresas. Cada clase dispone de métodos de creación, actualización, eliminación y recuperación, integrando validaciones y lógica de negocio específica, así como métodos transaccionales que permiten gestionar viajes completos de manera atómica.
+
+3. Capa de datos:
+   El sistema utiliza SQLite, con soporte de relaciones N:M y 1:N, constraints de integridad, índices en claves primarias y foráneas, y triggers que automatizan la auditoría. La base de datos mantiene consistencia y garantiza que todas las operaciones críticas se registren para su trazabilidad.
+
+Interacción entre módulos:
+
+* Los empleados están vinculados a empresas y pueden asociarse a viajes.
+* Cada viaje posee uno o varios itinerarios, que a su vez se relacionan con destinos generales y específicos de forma jerárquica.
+* Los itinerarios pueden asociar múltiples medios de transporte, gestionados mediante la tabla intermedia Itinerarios_Transporte.
+* Todos los costos asociados a transportes o destinos se registran en tablas de costos (Costos_Transporte y Costos_Destinos) para su trazabilidad y cálculo modular.
+
+## 4. Modelo de datos
+
+Cada entidad del sistema cumple un rol definido dentro de la arquitectura:
+
+* Viajes: Identifica un viaje corporativo, con fecha de inicio, fin, estado y detalle. Se relaciona con los itinerarios correspondientes. Los métodos principales permiten crear viajes completos, actualizar estado y vincular itinerarios de manera segura y transaccional.
+
+* Itinerarios: Representan cada tramo de un viaje. Se relacionan con destinos generales y específicos, y con medios de transporte a través de la tabla intermedia Itinerarios_Transporte. Los métodos incluyen validación de fechas, estado y asociaciones con transportes y destinos.
+
+* Destinos Generales: Representan los destinos principales de un itinerario, asociados a una ciudad y a un costo base. Pueden tener múltiples destinos específicos, permitiendo definir jerarquías dentro del viaje.
+
+* Destinos Específicos: Son paradas particulares dentro de un destino general. Registran horarios de inicio y fin, detalles, y costos asociados. La relación con el destino general permite mantener el orden secuencial de paradas dentro del itinerario.
+
+* Medios de Transporte: Representan los diferentes tipos de transporte que pueden asociarse a itinerarios. Cada medio tiene un costo base y un tipo de transporte (Avión, Tren, Colectivo, etc.). Los itinerarios los asocian mediante una relación N:M.
+
+* Costos: Separados para transporte y destinos, permiten centralizar los valores utilizados en cálculos de costos totales.
+
+* Auditoría:
+
+  * Historial_Cambios registra cada operación de inserción, actualización o eliminación sobre cualquier entidad del sistema.
+  * Historial_Detalle almacena el valor anterior y nuevo de cada campo modificado.
+  * Tipo_Cambio clasifica los cambios en Inserción, Actualización o Eliminación.
+  * Tablas_Sistema mantiene un registro de las tablas auditables.
+
+El modelo de datos asegura la integridad referencial y permite ejecutar transacciones complejas de manera segura.
+
+## 5. Gestión de triggers
+
+Los triggers en SQLite se utilizan para garantizar la auditoría automática y mantener la consistencia de la base de datos. Cada operación sobre entidades críticas dispara un trigger que inserta un registro en Historial_Cambios y, si corresponde, en Historial_Detalle.
+
+Ejemplo conceptual: Cuando se crea un nuevo viaje, un trigger inserta automáticamente un registro en Historial_Cambios indicando la acción de inserción, la tabla afectada y el registro generado. Si algún campo requiere detalle, se inserta en Historial_Detalle.
+
+Los triggers permiten que la auditoría sea transparente para el usuario, asegurando que cualquier modificación quede registrada sin depender de la lógica de aplicación, lo que es fundamental en un entorno productivo.
+
+## 6. Tablas de auditoría
+
+Las tablas de auditoría permiten rastrear cambios de manera granular. Cada operación sobre los datos principales queda registrada:
+
+* Historial_Cambios: registra la operación global sobre un registro.
+* Historial_Detalle: documenta los cambios campo por campo.
+* Tipo_Cambio: clasifica la operación (Inserción, Actualización, Eliminación).
+* Tablas_Sistema: referencia de las tablas auditables.
+
+Este esquema garantiza trazabilidad completa y permite reconstruir el estado de cualquier registro en cualquier momento, facilitando auditorías de producción, análisis de errores y control de operaciones críticas.
+
+## 7. Gestión de relaciones y transacciones
+
+El sistema soporta la creación de viajes completos de manera atómica, incluyendo itinerarios, destinos y transportes. Esto se realiza dentro de una transacción única, de manera que si ocurre cualquier error, la operación se revierte completamente, evitando inconsistencias.
+
+Por ejemplo, al ejecutar el método crear_viaje_completo, se insertan el viaje, sus itinerarios, destinos generales y específicos, transportes asociados y costos, todo dentro de un bloque de sesión con commit final o rollback en caso de excepción.
+
+## 8. Funciones y métodos principales
+
+Cada entidad tiene métodos de CRUD y operaciones específicas:
+
+* crear_itinerario: valida fechas y estado antes de insertar un registro.
+* agregar_destino: asocia destinos generales y específicos a un itinerario.
+* asociar_transporte: vincula medios de transporte mediante la tabla intermedia.
+* actualizar_estado: permite modificar el estado de viajes e itinerarios.
+* Métodos de cálculo de costos: total del viaje, por itinerario, por destino y transporte.
+
+Los métodos utilizan ORM de SQLAlchemy, permitiendo gestión eficiente de relaciones y consultas complejas.
+
+## 9. Validaciones y reglas de negocio
+
+* Campos obligatorios como fechas, detalle, nombre de destino y tipo de transporte.
+* Integridad jerárquica: destinos específicos deben pertenecer a un destino general.
+* Restricciones de unicidad: DNI, CUIT, nombre de destinos.
+* Estados permitidos: Activo, Cancelado, Finalizado.
+* Validación de fechas: inicio ≤ fin para viajes, itinerarios y destinos.
+
+## 10. Flujos de trabajo con SQLite
+
+* Uso de sesiones y commits controlados para garantizar integridad en transacciones multientidad.
+* Triggers de auditoría automatizan el registro de operaciones.
+* Consultas jerárquicas: obtención de viajes completos con itinerarios, destinos y transportes asociados.
+* Relaciones N:M y 1:N gestionadas mediante ORM y claves foráneas, asegurando consistencia y facilidad de mantenimiento.
+
+## 11. Casos de uso
+
+Creación de viaje completo:
+
+* Se recibe un JSON con datos del viaje, itinerarios, destinos y transportes.
+* Se ejecuta crear_viaje_completo, que gestiona inserciones de manera transaccional y dispara triggers de auditoría.
+
+Ejemplo JSON:
+
+{
+  "viaje": {
+    "fecha_inicio": "2025-11-01",
+    "fecha_fin": "2025-11-10",
+    "detalle": "Viaje corporativo anual",
+    "id_empresa": 1
+  },
+  "itinerarios": [
+    {
+      "fecha_inicio": "2025-11-01",
+      "fecha_fin": "2025-11-03",
+      "detalle": "Tramo inicial",
+      "destinos": [
+        {"id_destino_general": 1, "id_destino_especifico": 1},
+        {"id_destino_general": 2, "id_destino_especifico": null}
+      ],
+      "transportes": [
+        {"id_medio_transporte": 1},
+        {"id_medio_transporte": 2}
+      ]
+    }
+  ]
+}
+
+
+El JSON refleja exactamente cómo se ejecuta la transacción: el viaje se inserta, los itinerarios se crean y se relacionan con destinos y transportes, y todo queda auditado automáticamente.
+
+Otros casos: modificación de itinerarios, cancelación de viajes, consulta de historial de cambios por tabla o tipo de acción.
+
+## 12. Conclusiones y aprendizajes
+
+El sistema desarrollado demuestra que es posible construir un entorno de producción completo para la gestión de viajes corporativos, integrando:
+
+* Arquitectura modular en Python y SQLite, con ORM para manejo eficiente de relaciones y transacciones.
+* Triggers y auditoría automatizada para garantizar trazabilidad completa y seguridad de la información.
+* Jerarquía de destinos y transporte, con control de costos y cálculos integrados.
+* Gestión de transacciones multientidad, evitando inconsistencias y errores en operaciones críticas.
+
+El enfoque adoptado asegura escalabilidad, mantenimiento sencillo y posibilidad de integración futura con interfaces gráficas y otros motores de base de datos. Se ha logrado un nivel de documentación completo y profesional, con ejemplos claros de estructuras JSON, flujos de datos y auditoría, facilitando el entendimiento y el despliegue en producción.
